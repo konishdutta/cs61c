@@ -1,9 +1,9 @@
-1.
-2.
-3.
-4.
-5.
-6.
-7.
-8.
-9.
+1. set args [add args here]
+2. break [break line number]
+3. next
+4. step
+5. continue
+6. print [variable name or expression]
+7. display variable or expression
+8. info locals
+9. quit
