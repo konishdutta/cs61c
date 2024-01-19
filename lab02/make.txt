@@ -1,7 +1,7 @@
-1.
-2.
-3.
-4.
-5.
-6.
-7.
+1. clean deletes all copmiled programs.
+2. the all target
+3. gcc
+4. c99
+5. $(FOO)
+6. Mac OSX
+7. 32
