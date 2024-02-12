@@ -21,4 +21,16 @@ main:
     ecall # Exit
 
 factorial:
-    # YOUR CODE HERE
+    add a1, x0, a0 #track n in a1
+    addi a0, x0, 1 #reset a0 to 1
+    jal x0 fact_body
+
+fact_body:
+    beq a1, x0, exit
+    mul a0, a0, a1
+    addi a1, a1, -1
+    jal x0, fact_body
+
+
+exit:
+    jr ra
