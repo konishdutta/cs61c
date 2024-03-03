@@ -589,20 +589,36 @@ class TestReadMatrix(TestCase):
         cols = t.array([-1])
 
         # load the addresses to the output parameters into the argument registers
-        raise NotImplementedError("TODO")
-        # TODO
+        t.input_array("a1", rows)
+        t.input_array("a2", cols)
+
 
         # call the read_matrix function
-        #t.call("read_matrix")
+        t.call("read_matrix")
 
         # check the output from the function
-        # TODO
+        result = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        t.check_array_pointer("a0", result)
+        t.check_array(rows, [3])
+        t.check_array(cols, [3])
 
         # generate assembly and run it through venus
-        #t.execute(fail=fail, code=code)
+        t.execute(fail=fail, code=code)
 
     def test_simple(self):
         self.do_read_matrix()
+
+    def test_malloc_fail(self):
+        self.do_read_matrix(fail='malloc', code=88)
+
+    def test_fopen_fail(self):
+        self.do_read_matrix(fail='fopen', code=90)        
+
+    def test_fread_fail(self):
+        self.do_read_matrix(fail='fread', code=91)  
+
+    def test_fclose_fail(self):
+        self.do_read_matrix(fail='fclose', code=92)                        
 
     @classmethod
     def tearDownClass(cls):
