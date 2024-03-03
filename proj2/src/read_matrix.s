@@ -126,8 +126,8 @@ read_matrix:
 
 malloc_error:
     # close the file
+    add a1, s0, x0 # set arg    
     jal fclose    
-    add a1, s0, x0 # set arg
     li a1, 88
     j exit2
 
@@ -137,6 +137,7 @@ open_error:
 
 read_error:
     # close the file
+    add a1, s0, x0 # set arg    
     jal fclose    
     add a1, s0, x0 # set arg
     li a1, 91
