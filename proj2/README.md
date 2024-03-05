@@ -1,28 +1,16 @@
-# fa20-proj2-starter
+# MNIST Neural Net in RISC-V
 
-```
-.
-├── inputs (test inputs)
-├── outputs (some test outputs)
-├── README.md
-├── src
-│   ├── argmax.s (partA)
-│   ├── classify.s (partB)
-│   ├── dot.s (partA)
-│   ├── main.s (do not modify)
-│   ├── matmul.s (partA)
-│   ├── read_matrix.s (partB)
-│   ├── relu.s (partA)
-│   ├── utils.s (do not modify)
-│   └── write_matrix.s (partB)
-├── tools
-│   ├── convert.py (convert matrix files for partB)
-│   └── venus.jar (RISC-V simulator)
-└── unittests
-    ├── assembly (contains outputs from unittests.py)
-    ├── framework.py (do not modify)
-    └── unittests.py (partA + partB)
-```
+## Project Overview
 
+I implemented a neural network to identify handwritten digits using RISC-V assembly language as part of self-learning from UC Berkeley's CS61C "Machine Structures" curriculum. The project involved:
+* Understanding the mathematics behind a neural net
+* Implementing mathematics in low-level assembly
+* Managing registers, memory, and stack efficiently
+* Manipulating file I/O in assembly
+* Building a test suite to debug assembly 
 
-## Here's what I did in project 2:
+## Biggest Challenges
+
+* **Debugging Assembly Code:** Debugging at the assembly level was particularly challenging due to the lack of high-level abstractions. Errors required stepping through each instruction and using exit codes creatively.
+* **Efficient Memory Usage:** Managing memory on the heap and ensuring efficient use of resources was a complex task that required careful planning and execution.
+* **Implementing Complex Mathematical Functions:** Translating high-level mathematical operations into efficient assembly code required a deep understanding of the underlying mathematical principles and assembly language optimization techniques.
