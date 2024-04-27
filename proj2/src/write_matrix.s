@@ -73,6 +73,10 @@ write_matrix:
     li t0, 2
     bne t0, a0, write_error
 
+    # free the malloc
+    mv a0, s4
+    jal free
+
     # Create the counter
     # s5 = counter
     mul s5, s2, s3 # s5 = rows * cols

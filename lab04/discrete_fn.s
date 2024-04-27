@@ -77,7 +77,11 @@ main:
 # Think: why might having a1 be useful?
 f:
     # YOUR CODE GOES HERE!
-
+    # Massage a0 to be the byte address in the output array
+    addi a0, a0, 3  # -3 + 3 = 0, so f(-3) maps to a1[0]
+    slli a0, a0, 2  # a0 *= 4 for byte addressing
+    add a1, a1, a0  # a1 is the byte address
+    lw a0, 0(a1)
     jr ra               # Always remember to jr ra after your function!
 
 print_int:
