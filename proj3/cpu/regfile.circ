@@ -2319,7 +2319,6 @@ end TCL_Generic;
     <comp lib="0" loc="(160,1390)" name="Pin">
       <a name="appearance" val="NewPins"/>
       <a name="label" val="write_en"/>
-      <a name="radix" val="16"/>
     </comp>
     <comp lib="0" loc="(160,730)" name="Pin">
       <a name="appearance" val="NewPins"/>
