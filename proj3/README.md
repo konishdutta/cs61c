@@ -1,4 +1,4 @@
-# 2/5 Stage RISC-V CPU
+# 2 & 5 Stage RISC-V CPU
 I built the following components in Logism from scratch:
 * CPU Datapath
 * ALU
