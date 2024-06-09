@@ -1,19 +1,19 @@
 Exercise 1:
-    1.
-    2.
-    3.
+    1. 32
+    2. 2, 8, 0, 8
+    3. No page hits because the TLB and Frame numbers in memory match. Same size
 
 Exercise 2:
-    1.
+    1. 00, 20, 40, 60, 80, A0, C0, E0, 00, 20
 
 Exercise 3:
-    1.
+    1. Physical Memory Size
 
 --- lines below are ignored by the AG ---
 
 Exercise 1 Checkoff Questions:
-    1.
-    2.
+    1. 1st 3 bits is page number, next 5 bits is offset. we then look up the 1st 3 bits in the TLB and find the corresponding PPN. If that fails, we do the same in the PTE. If that fails, we have a page fault and grab the data from disk and put it in the LRU memory frame. and update PTE and TLB
+    2. There are only 4 frames in the PPN, while the virtual memory can hold 8 pages.
 
 Exercise 4 Checkoff Question:
-    1.
+    1. 
