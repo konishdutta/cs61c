@@ -4,11 +4,11 @@ char *USAGE = "--files directory/ [--port 8000 --concurrency 5]\n";
 char *report = "report.txt";
 
 int main(int argc, char **argv) {
-   signal(SIGINT, signal_callback_handler);
+  signal(SIGINT, signal_callback_handler);
 
-// default configs
-   server_port = 8000;
-   server_files_directory = "./files/";
+  // default configs
+  server_port = 8000;
+  server_files_directory = "./files/";
 
   int i;
   for (i = 1; i < argc; i++) {
@@ -19,12 +19,12 @@ int main(int argc, char **argv) {
         exit_with_usage(argv[0]);
       }
     } else if (strcmp("--dotp-size", argv[i]) == 0) {
-       char *size_str = argv[++i];
-       if (!size_str) {
-          fprintf(stderr, "Expected argument after --dotp-size\n");
-          exit_with_usage(argv[0]);
-       }
-       dotp_size = atoi(size_str);
+      char *size_str = argv[++i];
+      if (!size_str) {
+        fprintf(stderr, "Expected argument after --dotp-size\n");
+        exit_with_usage(argv[0]);
+      }
+      dotp_size = atoi(size_str);
     } else if (strcmp("--port", argv[i]) == 0) {
       char *server_port_string = argv[++i];
       if (!server_port_string) {

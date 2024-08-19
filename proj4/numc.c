@@ -279,6 +279,14 @@ PyObject *Matrix61c_repr(PyObject *self) {
     return PyObject_Repr(py_lst);
 }
 
+int matrix_type_check(PyObject* candidate) {
+    if (!PyObject_TypeCheck(candidate, &Matrix61cType)) {
+        PyErr_SetString(PyExc_TypeError, "Operand must be Matrix61cType");
+        return -1;
+    }
+    return 0;
+}
+
 /* NUMBER METHODS */
 
 /*
@@ -287,7 +295,32 @@ PyObject *Matrix61c_repr(PyObject *self) {
  */
 PyObject *Matrix61c_add(Matrix61c* self, PyObject* args) {
     /* TODO: YOUR CODE HERE */
+    if (matrix_type_check(args) < 0) {
+        return NULL;
+    }
+    Matrix61c* operand = (Matrix61c*) args;
+    Matrix61c* res = (Matrix61c*) Matrix61c_new(&Matrix61cType, NULL, NULL);
+    if (res == NULL) {
+        PyErr_SetString(PyExc_MemoryError, "Not enough memory.");
+        return NULL;
+    }
+
+    if (allocate_matrix(&(res->mat), self->mat->rows, self->mat->cols) < 0) {
+        PyErr_SetString(PyExc_MemoryError, "Not enough memory.");
+        Py_DECREF(res);
+        return NULL;
+    }
+
+    if (add_matrix(res->mat, self->mat, operand->mat) < 0) {
+        Py_DECREF(res);
+        PyErr_SetString(PyExc_ValueError, "Two matrices must have the same dimensions.");
+        return NULL;
+    }
+    res->shape = get_shape(res->mat->rows, res->mat->cols);
+    return (PyObject *) res;
 }
+
+
 
 /*
  * Substract the second numc.Matrix (Matrix61c) object from the first one. The first operand is
@@ -295,6 +328,29 @@ PyObject *Matrix61c_add(Matrix61c* self, PyObject* args) {
  */
 PyObject *Matrix61c_sub(Matrix61c* self, PyObject* args) {
     /* TODO: YOUR CODE HERE */
+    if (matrix_type_check(args) < 0) {
+        return NULL;
+    }
+    Matrix61c* operand = (Matrix61c*) args;
+    Matrix61c* res = (Matrix61c*) Matrix61c_new(&Matrix61cType, NULL, NULL);
+    if (res == NULL) {
+        PyErr_SetString(PyExc_MemoryError, "Not enough memory.");
+        return NULL;
+    }
+
+    if (allocate_matrix(&(res->mat), self->mat->rows, self->mat->cols) < 0) {
+        PyErr_SetString(PyExc_MemoryError, "Not enough memory.");
+        Py_DECREF(res);
+        return NULL;
+    }
+
+    if (sub_matrix(res->mat, self->mat, operand->mat) < 0) {
+        Py_DECREF(res);
+        PyErr_SetString(PyExc_ValueError, "Two matrices must have the same dimensions.");
+        return NULL;
+    }
+    res->shape = get_shape(res->mat->rows, res->mat->cols);
+    return (PyObject *) res;
 }
 
 /*
@@ -303,6 +359,29 @@ PyObject *Matrix61c_sub(Matrix61c* self, PyObject* args) {
  */
 PyObject *Matrix61c_multiply(Matrix61c* self, PyObject *args) {
     /* TODO: YOUR CODE HERE */
+    if (matrix_type_check(args) < 0) {
+        return NULL;
+    }
+    Matrix61c* operand = (Matrix61c*) args;
+    Matrix61c* res = (Matrix61c*) Matrix61c_new(&Matrix61cType, NULL, NULL);
+    if (res == NULL) {
+        PyErr_SetString(PyExc_MemoryError, "Not enough memory.");
+        return NULL;
+    }
+
+    if (allocate_matrix(&(res->mat), self->mat->rows, operand->mat->cols) < 0) {
+        PyErr_SetString(PyExc_MemoryError, "Not enough memory.");
+        Py_DECREF(res);
+        return NULL;
+    }
+
+    if (mul_matrix(res->mat, self->mat, operand->mat) < 0) {
+        Py_DECREF(res);
+        PyErr_SetString(PyExc_ValueError, "1st matrix cols must equal 2nd matrix rows.");
+        return NULL;
+    }
+    res->shape = get_shape(res->mat->rows, res->mat->cols);
+    return (PyObject *) res;
 }
 
 /*
@@ -310,6 +389,25 @@ PyObject *Matrix61c_multiply(Matrix61c* self, PyObject *args) {
  */
 PyObject *Matrix61c_neg(Matrix61c* self) {
     /* TODO: YOUR CODE HERE */
+    Matrix61c* res = (Matrix61c*) Matrix61c_new(&Matrix61cType, NULL, NULL);
+    if (res == NULL) {
+        PyErr_SetString(PyExc_MemoryError, "Not enough memory.");
+        return NULL;
+    }
+
+    if (allocate_matrix(&(res->mat), self->mat->rows, self->mat->cols) < 0) {
+        PyErr_SetString(PyExc_MemoryError, "Not enough memory.");
+        Py_DECREF(res);
+        return NULL;
+    }
+
+    if (neg_matrix(res->mat, self->mat) < 0) {
+        Py_DECREF(res);
+        PyErr_SetString(PyExc_ValueError, "Unknown error.");
+        return NULL;
+    }
+    res->shape = get_shape(res->mat->rows, res->mat->cols);
+    return (PyObject *) res;
 }
 
 /*
@@ -317,6 +415,25 @@ PyObject *Matrix61c_neg(Matrix61c* self) {
  */
 PyObject *Matrix61c_abs(Matrix61c *self) {
     /* TODO: YOUR CODE HERE */
+    Matrix61c* res = (Matrix61c*) Matrix61c_new(&Matrix61cType, NULL, NULL);
+    if (res == NULL) {
+        PyErr_SetString(PyExc_MemoryError, "Not enough memory.");
+        return NULL;
+    }
+
+    if (allocate_matrix(&(res->mat), self->mat->rows, self->mat->cols) < 0) {
+        PyErr_SetString(PyExc_MemoryError, "Not enough memory.");
+        Py_DECREF(res);
+        return NULL;
+    }
+
+    if (abs_matrix(res->mat, self->mat) < 0) {
+        Py_DECREF(res);
+        PyErr_SetString(PyExc_ValueError, "Unknown error.");
+        return NULL;
+    }
+    res->shape = get_shape(res->mat->rows, res->mat->cols);
+    return (PyObject *) res;
 }
 
 /*
@@ -324,6 +441,29 @@ PyObject *Matrix61c_abs(Matrix61c *self) {
  */
 PyObject *Matrix61c_pow(Matrix61c *self, PyObject *pow, PyObject *optional) {
     /* TODO: YOUR CODE HERE */
+    if (!PyLong_Check(pow)) {
+        PyErr_SetString(PyExc_TypeError, "Power must be an integer");
+        return NULL;
+    }
+    Matrix61c* res = (Matrix61c*) Matrix61c_new(&Matrix61cType, NULL, NULL);
+    if (res == NULL) {
+        PyErr_SetString(PyExc_MemoryError, "Not enough memory.");
+        return NULL;
+    }
+
+    if (allocate_matrix(&(res->mat), self->mat->rows, self->mat->cols) < 0) {
+        PyErr_SetString(PyExc_MemoryError, "Not enough memory.");
+        Py_DECREF(res);
+        return NULL;
+    }
+
+    if (pow_matrix(res->mat, self->mat, (int) PyLong_AsLong(pow)) < 0) {
+        Py_DECREF(res);
+        PyErr_SetString(PyExc_ValueError, "Matrix must be square and pow must be greater than 0.");
+        return NULL;
+    }
+    res->shape = get_shape(res->mat->rows, res->mat->cols);
+    return (PyObject *) res;
 }
 
 /*
@@ -332,6 +472,12 @@ PyObject *Matrix61c_pow(Matrix61c *self, PyObject *pow, PyObject *optional) {
  */
 PyNumberMethods Matrix61c_as_number = {
     /* TODO: YOUR CODE HERE */
+    .nb_add = (binaryfunc)Matrix61c_add,
+    .nb_subtract = (binaryfunc)Matrix61c_sub,
+    .nb_multiply = (binaryfunc)Matrix61c_multiply,
+    .nb_negative = (unaryfunc)Matrix61c_neg,
+    .nb_absolute = (unaryfunc)Matrix61c_abs,
+    .nb_power = (ternaryfunc)Matrix61c_pow,
 };
 
 
@@ -343,6 +489,23 @@ PyNumberMethods Matrix61c_as_number = {
  */
 PyObject *Matrix61c_set_value(Matrix61c *self, PyObject* args) {
     /* TODO: YOUR CODE HERE */
+    int row;
+    int col;
+    double value;
+    if (!PyArg_ParseTuple(args, "iid", &row, &col, &value)) {
+        PyErr_SetString(PyExc_TypeError, "Invalid arguments");
+        return NULL;
+    }
+    if (row < 0 || col < 0) {
+        PyErr_SetString(PyExc_IndexError, "Out of range");
+        return NULL;
+    }
+    if (row >= self->mat->rows || col >= self->mat->cols) {
+        PyErr_SetString(PyExc_IndexError, "Out of range");
+        return NULL;
+    }
+    set(self->mat, row, col, value);
+    Py_RETURN_NONE;
 }
 
 /*
@@ -352,6 +515,23 @@ PyObject *Matrix61c_set_value(Matrix61c *self, PyObject* args) {
  */
 PyObject *Matrix61c_get_value(Matrix61c *self, PyObject* args) {
     /* TODO: YOUR CODE HERE */
+    int row;
+    int col;
+    double value;
+    if (!PyArg_ParseTuple(args, "ii", &row, &col)) {
+        PyErr_SetString(PyExc_TypeError, "Invalid arguments");
+        return NULL;
+    }
+    if (row < 0 || col < 0) {
+        PyErr_SetString(PyExc_IndexError, "Out of range");
+        return NULL;
+    }
+    if (row >= self->mat->rows || col >= self->mat->cols) {
+        PyErr_SetString(PyExc_IndexError, "Out of range");
+        return NULL;
+    }
+    value = get(self->mat, row, col);
+    return PyFloat_FromDouble(value);
 }
 
 /*
@@ -362,7 +542,9 @@ PyObject *Matrix61c_get_value(Matrix61c *self, PyObject* args) {
  */
 PyMethodDef Matrix61c_methods[] = {
     /* TODO: YOUR CODE HERE */
-    {NULL, NULL, 0, NULL}
+    {"set", (PyCFunction) Matrix61c_set_value, METH_VARARGS, NULL},
+    {"get", (PyCFunction) Matrix61c_get_value, METH_VARARGS, NULL},
+    {NULL, NULL, 0, NULL},
 };
 
 /* INDEXING */
@@ -370,8 +552,189 @@ PyMethodDef Matrix61c_methods[] = {
 /*
  * Given a numc.Matrix `self`, index into it with `key`. Return the indexed result.
  */
+
+
+int boundary_helper(Matrix61c* self, PyObject* key, Py_ssize_t* res) {
+// calling function responsible for malloc
+    if (!res) {
+        return -1;
+    }
+    Py_ssize_t row_start;
+    Py_ssize_t row_end;
+    Py_ssize_t col_start;
+    Py_ssize_t col_end;
+    Py_ssize_t row_step;
+    Py_ssize_t col_step;
+    Py_ssize_t row_length;
+    Py_ssize_t col_length;
+    if (PyLong_Check(key)) {
+        switch (self->mat->rows) {
+            case 1:
+                col_start = PyLong_AsSsize_t(key);
+                col_end = col_start + 1;
+                col_step = 1;
+                col_length = 1;
+                row_start = 0;
+                row_end = self->mat->rows;
+                row_step = 1;
+                row_length = row_end - row_start;
+                break;
+            default:
+                col_start = 0;
+                col_end = self->mat->cols;
+                col_step = 1;
+                col_length = col_end - col_start;
+                row_start = PyLong_AsSsize_t(key);
+                row_end = row_start + 1;
+                row_length = 1;
+                row_step = 1;
+        }
+    } else if (PySlice_Check(key)) {
+        switch (self->mat->rows) {
+            case 1:
+                if (PySlice_GetIndicesEx(key, self->mat->cols, &col_start, &col_end, &col_step, &col_length) < 0) {
+                    PyErr_SetString(PyExc_IndexError, "Invalid bounds.");
+                    return -1;
+                }
+                row_start = 0;
+                row_end = 1;
+                row_step = 1;
+                row_length = 1;
+                //col_length = col_end - col_start;
+                break;
+            default:
+                if (PySlice_GetIndicesEx(key, self->mat->rows, &row_start, &row_end, &row_step, &row_length) < 0) {
+                    PyErr_SetString(PyExc_IndexError, "Invalid bounds.");
+                    return -1;
+                }
+                col_start = 0;
+                col_end = self->mat->cols;
+                col_step = 1;
+                col_length = col_end - col_start;
+                //row_length = row_end - row_start;
+            }
+    } else if (PyTuple_Check(key) && PyTuple_Size(key) == 2) {
+        if (self->mat->is_1d) {
+            PyErr_SetString(PyExc_TypeError, "1D matrix only supports single slice.");
+            return -1;
+        }
+        PyObject *row_key = PyTuple_GetItem(key, 0);
+        PyObject *col_key = PyTuple_GetItem(key, 1);
+        // process row_keys
+        // if row_key is an integer
+        if (PyLong_Check(row_key)) {
+            row_start = PyLong_AsSsize_t(row_key);
+            row_end = row_start + 1;
+            row_length = 1;
+            row_step = 1;
+        } else if (PySlice_Check(row_key)) {
+            if (PySlice_GetIndicesEx(row_key, self->mat->rows, &row_start, &row_end, &row_step, &row_length) < 0) {
+                PyErr_SetString(PyExc_IndexError, "Invalid bounds.");
+                return -1;
+            }
+            //row_length = row_end - row_start;
+        } else {
+            PyErr_SetString(PyExc_TypeError, "Invalid slice.");
+            return -1;
+        }
+        // process col keys
+        if (PyLong_Check(col_key)) {
+            col_start = PyLong_AsSsize_t(col_key);
+            col_end = col_start + 1;
+            col_length = 1;
+            col_step = 1;
+        } else if (PySlice_Check(col_key)) {
+            if (PySlice_GetIndicesEx(col_key, self->mat->cols, &col_start, &col_end, &col_step, &col_length) < 0) {
+                PyErr_SetString(PyExc_IndexError, "Invalid bounds.");
+                return -1;
+            }
+            //col_length = col_end - col_start;
+
+        } else {
+            PyErr_SetString(PyExc_TypeError, "Invalid slice.");
+            return -1;
+        }
+    } else {
+    // throw error
+        PyErr_SetString(PyExc_TypeError, "Invalid slice.");
+        return -1;
+    }
+    if (row_start < 0) {
+        row_start += self->mat->rows;
+    }
+    if (col_start < 0) {
+        col_start += self->mat->cols;
+    }
+    if (col_length < 1 || row_length < 1) {
+        PyErr_SetString(PyExc_ValueError, "Length cannot be less than 1.");
+        return -1;
+    }
+    if (row_start < 0 || col_start < 0 || col_length + col_start > self->mat->cols || row_length + row_start > self->mat->rows) {
+        PyErr_SetString(PyExc_ValueError, "Invalid Bounds.");
+        return -1;
+    }
+    if (col_step != 1 || row_step != 1) {
+        PyErr_SetString(PyExc_ValueError, "Step must be 1.");
+        return -1;
+    }
+    res[0] = row_start;
+    res[1] = row_end;
+    res[2] = col_start;
+    res[3] = col_end;
+    res[4] = row_step;
+    res[5] = col_step;
+    res[6] = row_length;
+    res[7] = col_length;
+    return 0;
+}
+
 PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
     /* TODO: YOUR CODE HERE */
+    PyObject* res;
+    Py_ssize_t row_start;
+    Py_ssize_t row_end;
+    Py_ssize_t col_start;
+    Py_ssize_t col_end;
+    Py_ssize_t row_step;
+    Py_ssize_t col_step;
+    Py_ssize_t row_length;
+    Py_ssize_t col_length;
+
+    Py_ssize_t boundaries[8];
+
+    if(boundary_helper(self, key, boundaries) < 0) {
+        return NULL;
+    }
+    row_start = boundaries[0];
+    row_end = boundaries[1];
+    col_start = boundaries[2];
+    col_end = boundaries[3];
+    row_step = boundaries[4];
+    col_step = boundaries[5];
+    row_length = boundaries[6];
+    col_length = boundaries[7];
+    if (row_length == 1 && col_length == 1) {
+        PyObject* arg1 = Py_BuildValue("ii", row_start, col_start);
+        res = Matrix61c_get_value(self, arg1);
+        Py_DECREF(arg1);
+        return res;
+    }
+    else {
+        // build sub matrix
+        Matrix61c* res = (Matrix61c*) Matrix61c_new(&Matrix61cType, NULL, NULL);
+        if (res == NULL) {
+            PyErr_SetString(PyExc_MemoryError, "Not enough memory.");
+            return NULL;
+        }
+
+        if (allocate_matrix_ref(&(res->mat), self->mat, row_start, col_start, row_length, col_length) < 0) {
+            PyErr_SetString(PyExc_MemoryError, "Not enough memory.");
+            Py_DECREF(res);
+            return NULL;
+        }
+        res->shape = get_shape(res->mat->rows, res->mat->cols);
+        return (PyObject *) res;
+    }
 }
 
 /*
@@ -379,6 +742,44 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
  */
 int Matrix61c_set_subscript(Matrix61c* self, PyObject *key, PyObject *v) {
     /* TODO: YOUR CODE HERE */
+    Py_ssize_t row_start;
+    Py_ssize_t row_end;
+    Py_ssize_t col_start;
+    Py_ssize_t col_end;
+    Py_ssize_t row_step;
+    Py_ssize_t col_step;
+    Py_ssize_t row_length;
+    Py_ssize_t col_length;
+    // grab the boundaries
+
+    Py_ssize_t boundaries[8];
+    if(boundary_helper(self, key, boundaries) < 0) {
+        return NULL;
+    }
+
+    row_start = boundaries[0];
+    row_end = boundaries[1];
+    col_start = boundaries[2];
+    col_end = boundaries[3];
+    row_step = boundaries[4];
+    col_step = boundaries[5];
+    row_length = boundaries[6];
+    col_length = boundaries[7];
+
+    // 1x1 slice
+    if (row_length == 1 && col_length == 1) {
+        if (!PyFloat_Check(v) && !PyLong_Check(v)) {
+            PyErr_SetString(PyExc_TypeError, "Resulting slice is 1x1 and requires int or float value.");
+            return -1;
+        }
+        self->mat->data[row_start][col_start] = PyFloat_AsDouble(v);
+        return 0;
+    }
+    // 1D Slice
+    if (row_length == 1 || col_length == 1) {
+
+    }
+    // 2D Slice
 }
 
 PyMappingMethods Matrix61c_mapping = {

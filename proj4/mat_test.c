@@ -131,10 +131,7 @@ void abs_test(void) {
 void pow_test(void) {
     matrix *result = NULL;
     matrix *mat = NULL;
-    CU_ASSERT_EQUAL(allocate_matrix(&result, 2, 2
-
-                                   ),
-                    0);
+    CU_ASSERT_EQUAL(allocate_matrix(&result, 2, 2),0);
     CU_ASSERT_EQUAL(allocate_matrix(&mat, 2, 2), 0);
     set(mat, 0, 0, 1);
     set(mat, 0, 1, 1);
@@ -150,6 +147,11 @@ void pow_test(void) {
     CU_ASSERT_EQUAL(get(result, 0, 1), 55);
     CU_ASSERT_EQUAL(get(result, 1, 0), 55);
     CU_ASSERT_EQUAL(get(result, 1, 1), 34);
+    pow_matrix(result, mat, 0);
+    CU_ASSERT_EQUAL(get(result, 0, 0), 1);
+    CU_ASSERT_EQUAL(get(result, 0, 1), 0);
+    CU_ASSERT_EQUAL(get(result, 1, 0), 0);
+    CU_ASSERT_EQUAL(get(result, 1, 1), 1);
     deallocate_matrix(result);
     deallocate_matrix(mat);
 }
@@ -159,6 +161,8 @@ void alloc_fail_test(void) {
     CU_ASSERT_EQUAL(allocate_matrix(&mat, 0, 0), -1);
     CU_ASSERT_EQUAL(allocate_matrix(&mat, 0, 1), -1);
     CU_ASSERT_EQUAL(allocate_matrix(&mat, 1, 0), -1);
+    CU_ASSERT_EQUAL(allocate_matrix(&mat, -5, 10), -1);
+    CU_ASSERT_EQUAL(allocate_matrix(&mat, 3, -2), -1)
 }
 
 void alloc_success_test(void) {
@@ -168,6 +172,7 @@ void alloc_success_test(void) {
     CU_ASSERT_EQUAL(mat->ref_cnt, 1);
     CU_ASSERT_EQUAL(mat->rows, 3);
     CU_ASSERT_EQUAL(mat->cols, 2);
+    CU_ASSERT_EQUAL(mat->is_1d, 0);
     CU_ASSERT_NOT_EQUAL(mat->data, NULL);
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 2; j++) {
@@ -177,9 +182,40 @@ void alloc_success_test(void) {
     deallocate_matrix(mat);
 }
 
+void alloc_success_1d_test(void) {
+    matrix *mat = NULL;
+    CU_ASSERT_EQUAL(allocate_matrix(&mat, 1, 2), 0);
+    CU_ASSERT_EQUAL(mat->parent, NULL);
+    CU_ASSERT_EQUAL(mat->ref_cnt, 1);
+    CU_ASSERT_EQUAL(mat->rows, 1);
+    CU_ASSERT_EQUAL(mat->cols, 2);
+    CU_ASSERT_NOT_EQUAL(mat->is_1d, 0);
+    CU_ASSERT_NOT_EQUAL(mat->data, NULL);
+    for (int i = 0; i < 1; i++) {
+        for (int j = 0; j < 2; j++) {
+            CU_ASSERT_EQUAL(get(mat, i, j), 0);
+        }
+    }
+    deallocate_matrix(mat);
+
+    CU_ASSERT_EQUAL(allocate_matrix(&mat, 2, 1), 0);
+    CU_ASSERT_EQUAL(mat->parent, NULL);
+    CU_ASSERT_EQUAL(mat->ref_cnt, 1);
+    CU_ASSERT_EQUAL(mat->rows, 2);
+    CU_ASSERT_EQUAL(mat->cols, 1);
+    CU_ASSERT_NOT_EQUAL(mat->is_1d, 0);
+    CU_ASSERT_NOT_EQUAL(mat->data, NULL);
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 1; j++) {
+            CU_ASSERT_EQUAL(get(mat, i, j), 0);
+        }
+    }
+}
+
 void alloc_ref_test(void) {
     matrix *mat1 = NULL;
     matrix *mat2 = NULL;
+    matrix *mat3 = NULL;
     matrix *from = NULL;
     allocate_matrix(&from, 3, 2);
     for (int i = 0; i < 3; i++) {
@@ -187,6 +223,18 @@ void alloc_ref_test(void) {
             set(from, i, j, i * 2 + j);
         }
     }
+    /* Bad cases */
+    // from is 3 x 2
+    // what if I allocated 1 extra?
+    CU_ASSERT_EQUAL(allocate_matrix_ref(&mat1, from, 1, 0, 3, 2), -1);
+    CU_ASSERT_EQUAL(allocate_matrix_ref(&mat1, from, 0, 1, 3, 2), -1);
+    // check weird dimensions
+    CU_ASSERT_EQUAL(allocate_matrix_ref(&mat1, from, -1, 0, 2, 2), -1);
+    CU_ASSERT_EQUAL(allocate_matrix_ref(&mat1, from, 1, -1, 2, 2), -1);
+    CU_ASSERT_EQUAL(allocate_matrix_ref(&mat1, from, 1, 0, -1, 2), -1);
+    CU_ASSERT_EQUAL(allocate_matrix_ref(&mat1, from, 1, 0, 2, -2), -1);
+
+
     /* 2D slice */
     CU_ASSERT_EQUAL(allocate_matrix_ref(&mat1, from, 1, 0, 2, 2), 0);
     CU_ASSERT_PTR_EQUAL(mat1->parent, from);
@@ -198,6 +246,29 @@ void alloc_ref_test(void) {
             CU_ASSERT_EQUAL(get(mat1, i, j), get(from, i + 1, j));
         }
     }
+
+    /* non-overlapping slice */
+    CU_ASSERT_EQUAL(allocate_matrix_ref(&mat3, from, 1, 1, 2, 1), 0);
+    CU_ASSERT_PTR_EQUAL(mat3->parent, from);
+    CU_ASSERT_EQUAL(mat3->parent->ref_cnt, 3);
+    CU_ASSERT_EQUAL(mat3->rows, 2);
+    CU_ASSERT_EQUAL(mat3->cols, 1);
+    CU_ASSERT_NOT_EQUAL(mat3->is_1d, 0);
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 1; j++) {
+            CU_ASSERT_EQUAL(get(mat3, i, j), get(from, i + 1, j + 1));
+        }
+    }
+
+    // check dealloc doesn't impact other refs
+    deallocate_matrix(mat3);
+    CU_ASSERT_EQUAL(from->ref_cnt, 2);
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            CU_ASSERT_EQUAL(get(mat1, i, j), get(from, i + 1, j));
+        }
+    }
+
     /* 1D slice */
     CU_ASSERT_EQUAL(allocate_matrix_ref(&mat2, from, 1, 0, 2, 1), 0);
     CU_ASSERT_PTR_EQUAL(mat2->parent, from);
@@ -278,6 +349,7 @@ int main(void) {
             (CU_add_test(pSuite, "pow_test", pow_test) == NULL) ||
             (CU_add_test(pSuite, "alloc_fail_test", alloc_fail_test) == NULL) ||
             (CU_add_test(pSuite, "alloc_success_test", alloc_success_test) == NULL) ||
+            (CU_add_test(pSuite, "alloc_success_1d_test", alloc_success_test) == NULL) ||
             (CU_add_test(pSuite, "alloc_ref_test", alloc_ref_test) == NULL) ||
             (CU_add_test(pSuite, "dealloc_null_test", dealloc_null_test) == NULL) ||
             (CU_add_test(pSuite, "get_test", get_test) == NULL) ||
@@ -287,8 +359,8 @@ int main(void) {
     }
 
     // Run all tests using the basic interface
-    CU_basic_set_mode(CU_BRM_NORMAL);
-    // CU_basic_set_mode(CU_BRM_VERBOSE);
+    //CU_basic_set_mode(CU_BRM_NORMAL);
+    CU_basic_set_mode(CU_BRM_VERBOSE);
     CU_basic_run_tests();
     printf("\n");
     CU_basic_show_failures(CU_get_failure_list());
