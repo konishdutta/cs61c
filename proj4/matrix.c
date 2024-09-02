@@ -423,7 +423,6 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
 void copy_matrix(matrix *from, matrix *to) {
     // assumes caller has already validated matrix dimensions
     for (int i = 0; i < from->rows; i++) {
-        #pragma omp parallel for
         for (int j = 0; j < from->cols; j++) {
             set(to, i, j, get(from, i, j));
         }
@@ -433,9 +432,8 @@ void copy_matrix(matrix *from, matrix *to) {
 void create_identity_matrix(matrix *mat) {
     // assumes caller has checked mat is square
     fill_matrix(mat, 0);
-    #pragma omp parallel for
     for (int i = 0; i < mat->rows; i++) {
-        set(mat, i, i, 1);
+        mat->data[i][i] = 1;
     }
 }
 
@@ -471,46 +469,36 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
     }
 
     // create a temp matrix and copy mat to it
-    matrix **temp = malloc(sizeof(matrix *));
-    if (!temp) {
+    matrix *temp;
+    if (allocate_matrix(&temp, mat->rows, mat->cols) != 0) {
         return -1;
     }
-    if (allocate_matrix(temp, mat->rows, mat->cols) != 0) {
-        free(temp);
-        return -1;
-    }
-
-    copy_matrix(mat, *temp);
 
     if (pow % 2) {
         // odd case
         // x^3 = x(x^2)
-        if (pow_matrix(*temp, mat, pow - 1) != 0) {
-            deallocate_matrix(*temp);
-            free(temp);
+        if (pow_matrix(temp, mat, pow - 1) != 0) {
+            deallocate_matrix(temp);
             return -1;
         }
-        if (mul_matrix(result, mat, *temp) != 0) {
-            deallocate_matrix(*temp);
-            free(temp);
+        if (mul_matrix(result, mat, temp) != 0) {
+            deallocate_matrix(temp);
             return -1;
         }
     } else {
+
         // even case
         // x^4 = (x^2)^2
-        if (mul_matrix(*temp, mat, mat) != 0) {
-            deallocate_matrix(*temp);
-            free(temp);
+        if (mul_matrix(temp, mat, mat) != 0) {
+            deallocate_matrix(temp);
             return -1;
         }
-        if (pow_matrix(result, *temp, pow / 2) != 0) {
-            deallocate_matrix(*temp);
-            free(temp);
+        if (pow_matrix(result, temp, pow / 2) != 0) {
+            deallocate_matrix(temp);
             return -1;
         }
     }
-    deallocate_matrix(*temp);
-    free(temp);
+    deallocate_matrix(temp);
     return 0;
 }
 
