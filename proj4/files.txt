@@ -1,2 +1,2 @@
-/usr/local/lib/python3.10/dist-packages/numc.cpython-310-x86_64-linux-gnu.so
-/usr/local/lib/python3.10/dist-packages/numc-0.1.egg-info
+/usr/local/lib/python3.10/dist-packages/dumbc.cpython-310-x86_64-linux-gnu.so
+/usr/local/lib/python3.10/dist-packages/dumbc-0.1.egg-info

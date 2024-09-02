@@ -17,5 +17,15 @@ def main():
           ext_modules=NUMCEXT
           )
 
+    DUMBCEXT = [Extension('dumbc',
+                         ['dumbc.c', 'dumb_matrix.c'],
+                         extra_compile_args=CFLAGS,
+                         extra_link_args=LDFLAGS,
+                         )]
+    setup(name = 'dumbc',
+          version = '0.1',
+          ext_modules=DUMBCEXT
+          )
+
 if __name__ == "__main__":
     main()

@@ -1,4 +1,4 @@
-#include "numc.h"
+#include "dumbc.h"
 #include <structmember.h>
 
 PyTypeObject Matrix61cType;
@@ -887,8 +887,8 @@ struct PyModuleDef numcmodule = {
     Matrix61c_class_methods
 };
 
-/* Initialize the numc module */
-PyMODINIT_FUNC PyInit_numc(void) {
+/* Initialize the dumbc module */
+PyMODINIT_FUNC PyInit_dumbc(void) {
     PyObject* m;
 
     if (PyType_Ready(&Matrix61cType) < 0)
@@ -900,7 +900,7 @@ PyMODINIT_FUNC PyInit_numc(void) {
 
     Py_INCREF(&Matrix61cType);
     PyModule_AddObject(m, "Matrix", (PyObject *)&Matrix61cType);
-    printf("CS61C Fall 2020 Project 4: numc imported!\n");
+    printf("CS61C Fall 2020 Project 4: dumbc imported!\n");
     fflush(stdout);
     return m;
 }
